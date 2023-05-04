@@ -10,4 +10,8 @@ MacOS, AArch64
 
 `./target/debug/rbfjit --file ./example/e.bf --mode jit`
 
+## reference
+
+BF jit by C, https://github.com/chenzhuoyu/bf_jit
+
 
