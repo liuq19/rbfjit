@@ -248,13 +248,13 @@ impl<'a> JITExcutor<'a> {
         }
     }
 
-    // ldr vreg, [xreg]
+    // ldr vreg, [preg]
     fn emit_ldr(&mut self, vreg: u8, preg: u8) {
         let base = u32::from_le_bytes([0x00, 0x00, 0x40, 0xf9]);
         self.emit_word(base | vreg as u32 | ((preg as u32) << 5));
     }
 
-    // str vreg [xreg]
+    // str vreg, [preg]
     fn emit_str(&mut self, vreg: u8, preg: u8) {
         let base = u32::from_le_bytes([0x00, 0x00, 0x00, 0xf9]);
         self.emit_word(base | vreg as u32 | ((preg as u32) << 5));
@@ -326,8 +326,6 @@ impl<'a> JITExcutor<'a> {
                 Instr::LOOPSTART(end_ip) => {
                     let pc = self.pctab[i] + 4;
                     let offset = self.pctab[end_ip + 1] - pc;
-
-                    // check the branch instruction, PC-relative offset must < 1MB.
                     assert!(end_ip > i);
                     assert!(offset > 0 && (offset & 3) == 0 && (offset >> 21) == 0);
 
@@ -340,7 +338,7 @@ impl<'a> JITExcutor<'a> {
                     let (mut offset, ov) = self.pctab[start_ip + 1].overflowing_sub(pc);
                     assert!(ov && (offset & 3) == 0);
                     offset = (offset >> 2) & ((1 << 20) - 1);
-                    assert!(offset < (1 << 20));
+
                     let base = u32::from_le_bytes(self.binary[pc..pc + 4].try_into().unwrap());
                     let bytes = (base | ((offset << 5) as u32)).to_le_bytes();
                     self.binary[pc..pc + 4].copy_from_slice(&bytes);
