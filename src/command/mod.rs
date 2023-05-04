@@ -1,7 +1,4 @@
-
-
-
-use clap::{Parser};
+use clap::Parser;
 
 /// A simple BrainFuck intepreter and JIT runtime.
 #[derive(Parser, Debug)]
